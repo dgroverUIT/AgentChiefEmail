@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Upload, Plus, Minus } from 'lucide-react';
-import { UploadDocument } from '../types';
+import React, { useState } from "react";
+import { X, Upload, Plus, Minus } from "lucide-react";
+import { UploadDocument } from "../types";
+import { supabase } from "../lib/supabase";
 
 interface UploadDocumentModalProps {
   isOpen: boolean;
@@ -8,31 +9,77 @@ interface UploadDocumentModalProps {
   onSubmit: (data: UploadDocument) => void;
 }
 
-export default function UploadDocumentModal({ isOpen, onClose, onSubmit }: UploadDocumentModalProps) {
+export default function UploadDocumentModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: UploadDocumentModalProps) {
   const [formData, setFormData] = useState<UploadDocument>({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     tags: [],
   });
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  console.log("formData before", formData);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;
-    onSubmit(formData);
-    onClose();
+
+    try {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.user?.id) {
+        throw new Error("Please sign in to upload a document");
+      }
+
+      console.log("session", session.user.id);
+      const userId = session.user.id;
+      const filePath = `${userId}/${crypto.randomUUID()}/${selectedFile.name}`;
+
+      const { data, error } = await supabase.storage
+        .from("documents")
+        .upload(filePath, selectedFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        console.log("Error uploading file", error);
+        return;
+      }
+
+      console.log("File uploaded successfully", data);
+
+      const url = supabase.storage.from("documents").getPublicUrl(filePath);
+      console.log("url from supabase", url);
+      // formData.source = url.data.publicUrl;
+
+      console.log("before upload ", formData);
+      onSubmit({ ...formData, source: url.data.publicUrl });
+      onClose();
+    } catch (error) {
+      console.log("Error", error);
+    }
   };
 
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
       setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToRemove) });
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter((tag) => tag !== tagToRemove),
+    });
   };
 
   if (!isOpen) return null;
@@ -47,7 +94,9 @@ export default function UploadDocumentModal({ isOpen, onClose, onSubmit }: Uploa
           >
             <X className="h-5 w-5" />
           </button>
-          <h2 className="text-xl font-semibold text-gray-900">Upload Documents</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Upload Documents
+          </h2>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
@@ -62,7 +111,9 @@ export default function UploadDocumentModal({ isOpen, onClose, onSubmit }: Uploa
                   <div className="mt-4">
                     <label htmlFor="file-upload" className="cursor-pointer">
                       <span className="mt-2 text-sm text-gray-600">
-                        {selectedFile ? selectedFile.name : 'Drop a file here, or click to select'}
+                        {selectedFile
+                          ? selectedFile.name
+                          : "Drop a file here, or click to select"}
                       </span>
                       <input
                         id="file-upload"
@@ -88,14 +139,19 @@ export default function UploadDocumentModal({ isOpen, onClose, onSubmit }: Uploa
             </div>
 
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Document Name
               </label>
               <input
                 type="text"
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="e.g., Product Manual v1.0"
                 required
@@ -103,13 +159,18 @@ export default function UploadDocumentModal({ isOpen, onClose, onSubmit }: Uploa
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Description
               </label>
               <textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 rows={3}
                 placeholder="Brief description of the document contents..."
@@ -142,7 +203,9 @@ export default function UploadDocumentModal({ isOpen, onClose, onSubmit }: Uploa
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addTag())
+                  }
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Add a tag"
                 />

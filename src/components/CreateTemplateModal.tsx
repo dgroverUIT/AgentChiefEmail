@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Minus } from 'lucide-react';
-import { EmailTemplate } from '../types';
+import React, { useState, useEffect } from "react";
+import { X, Plus, Minus } from "lucide-react";
+import { EmailTemplate } from "../types";
 
 interface CreateTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (template: Omit<EmailTemplate, 'id' | 'lastModified' | 'createdBy'>) => void;
+  onSubmit: (
+    template: Omit<EmailTemplate, "id" | "lastModified" | "createdBy">
+  ) => void;
   editTemplate?: EmailTemplate;
 }
 
@@ -13,21 +15,25 @@ export default function CreateTemplateModal({
   isOpen,
   onClose,
   onSubmit,
-  editTemplate
+  editTemplate,
 }: CreateTemplateModalProps) {
-  const [formData, setFormData] = useState<Omit<EmailTemplate, 'id' | 'lastModified' | 'createdBy'>>({
-    name: '',
-    category: 'support',
-    subject: '',
-    content: '',
+  const [formData, setFormData] = useState<
+    Omit<EmailTemplate, "id" | "lastModified" | "createdBy">
+  >({
+    name: "",
+    category: "support",
+    subject: "",
+    content: "",
     variables: [],
-    language: 'en',
+    language: "en",
     isActive: true,
-    tags: []
+    tags: [],
   });
 
-  const [newVariable, setNewVariable] = useState('');
-  const [newTag, setNewTag] = useState('');
+  const [newVariable, setNewVariable] = useState("");
+  const [newTag, setNewTag] = useState("");
+
+  console.log("newVariable ", newVariable);
 
   // Reset form when modal opens/closes or editTemplate changes
   useEffect(() => {
@@ -38,26 +44,26 @@ export default function CreateTemplateModal({
           category: editTemplate.category,
           subject: editTemplate.subject,
           content: editTemplate.content,
-          variables: editTemplate.variables || [],
+          variables: editTemplate.variables ? [...editTemplate.variables] : [],
           language: editTemplate.language,
           isActive: editTemplate.isActive,
-          tags: editTemplate.tags || []
+          tags: editTemplate.tags || [],
         });
       } else {
         // Reset to initial state for new template
         setFormData({
-          name: '',
-          category: 'support',
-          subject: '',
-          content: '',
+          name: "",
+          category: "support",
+          subject: "",
+          content: "",
           variables: [],
-          language: 'en',
+          language: "en",
           isActive: true,
-          tags: []
+          tags: [],
         });
       }
-      setNewVariable('');
-      setNewTag('');
+      setNewVariable("");
+      setNewTag("");
     }
   }, [isOpen, editTemplate]);
 
@@ -68,28 +74,36 @@ export default function CreateTemplateModal({
   };
 
   const addVariable = () => {
-    if (newVariable.trim() && !formData.variables.includes(newVariable.trim())) {
-      setFormData({ ...formData, variables: [...formData.variables, newVariable.trim()] });
-      setNewVariable('');
+    if (newVariable.trim()) {
+      setFormData({
+        ...formData,
+        variables: [...(formData.variables || []), newVariable.trim()], // Ensure it's an array of strings
+      });
+      setNewVariable("");
     }
   };
 
   const removeVariable = (variable: string) => {
-    setFormData({ ...formData, variables: formData.variables.filter(v => v !== variable) });
+    setFormData({
+      ...formData,
+      variables: formData.variables.filter((v) => v !== variable),
+    });
   };
 
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
       setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const removeTag = (tag: string) => {
-    setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) });
+    setFormData({ ...formData, tags: formData.tags.filter((t) => t !== tag) });
   };
 
   if (!isOpen) return null;
+
+  console.log("formData ", formData);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -102,7 +116,7 @@ export default function CreateTemplateModal({
             <X className="h-5 w-5" />
           </button>
           <h2 className="text-xl font-semibold text-gray-900">
-            {editTemplate ? 'Edit Template' : 'Create Email Template'}
+            {editTemplate ? "Edit Template" : "Create Email Template"}
           </h2>
         </div>
 
@@ -110,14 +124,19 @@ export default function CreateTemplateModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Template Name
                 </label>
                 <input
                   type="text"
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g., Order Confirmation"
                   required
@@ -125,13 +144,21 @@ export default function CreateTemplateModal({
               </div>
 
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Category
                 </label>
                 <select
                   id="category"
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as EmailTemplate['category'] })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      category: e.target.value as EmailTemplate["category"],
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="support">Customer Support</option>
@@ -143,14 +170,19 @@ export default function CreateTemplateModal({
               </div>
 
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Subject
                 </label>
                 <input
                   type="text"
                   id="subject"
                   value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subject: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g., Your order {{order_number}} has been confirmed"
                   required
@@ -158,13 +190,18 @@ export default function CreateTemplateModal({
               </div>
 
               <div>
-                <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="language"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Language
                 </label>
                 <select
                   id="language"
                   value={formData.language}
-                  onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, language: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="en">English</option>
@@ -184,10 +221,14 @@ export default function CreateTemplateModal({
                   <input
                     type="checkbox"
                     checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isActive: e.target.checked })
+                    }
                     className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                   />
-                  <span className="ml-2 text-sm text-gray-600">Template is active</span>
+                  <span className="ml-2 text-sm text-gray-600">
+                    Template is active
+                  </span>
                 </label>
               </div>
 
@@ -196,12 +237,13 @@ export default function CreateTemplateModal({
                   Variables
                 </label>
                 <div className="flex gap-2 flex-wrap mb-2">
-                  {formData.variables.map((variable) => (
+                  {formData.variables.map((variable, index) => (
                     <span
-                      key={variable}
+                      key={index}
                       className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
                     >
                       {variable}
+
                       <button
                         type="button"
                         onClick={() => removeVariable(variable)}
@@ -217,7 +259,9 @@ export default function CreateTemplateModal({
                     type="text"
                     value={newVariable}
                     onChange={(e) => setNewVariable(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVariable())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addVariable())
+                    }
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Add a variable (e.g., customer_name)"
                   />
@@ -257,7 +301,9 @@ export default function CreateTemplateModal({
                     type="text"
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addTag())
+                    }
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Add a tag"
                   />
@@ -273,18 +319,25 @@ export default function CreateTemplateModal({
             </div>
 
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="content"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email Content
               </label>
               <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-                <p className="text-sm text-gray-500 mb-2">Available variables:</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  Available variables:
+                </p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {formData.variables.map((variable) => (
                     <button
                       key={variable}
                       type="button"
                       onClick={() => {
-                        const textarea = document.getElementById('content') as HTMLTextAreaElement;
+                        const textarea = document.getElementById(
+                          "content"
+                        ) as HTMLTextAreaElement;
                         const start = textarea.selectionStart;
                         const end = textarea.selectionEnd;
                         const text = textarea.value;
@@ -295,7 +348,7 @@ export default function CreateTemplateModal({
                       }}
                       className="px-2 py-1 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200"
                     >
-                      {{variable}}
+                      {variable}
                     </button>
                   ))}
                 </div>
@@ -303,7 +356,9 @@ export default function CreateTemplateModal({
               <textarea
                 id="content"
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
                 className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 rows={15}
                 placeholder="Dear {{customer_name}},
@@ -328,7 +383,7 @@ Thank you for your email..."
               onClick={handleSubmit}
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
             >
-              {editTemplate ? 'Save Changes' : 'Create Template'}
+              {editTemplate ? "Save Changes" : "Create Template"}
             </button>
           </div>
         </div>

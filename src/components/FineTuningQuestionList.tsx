@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
-import { FineTuningQuestion, Bot } from '../types';
-import { Search, Filter, Plus, Pencil, Tag, Brain, Trash2, CheckSquare, Square, Users, Upload } from 'lucide-react';
-import FineTuningQuestionModal from './FineTuningQuestionModal';
-import ImportQuestionsModal from './ImportQuestionsModal';
-import BulkEditBotsModal from './BulkEditBotsModal';
+import React, { useState } from "react";
+import { FineTuningQuestion, Bot } from "../types";
+import {
+  Search,
+  Filter,
+  Plus,
+  Pencil,
+  Tag,
+  Brain,
+  Trash2,
+  CheckSquare,
+  Square,
+  Users,
+  Upload,
+} from "lucide-react";
+import FineTuningQuestionModal from "./FineTuningQuestionModal";
+import ImportQuestionsModal from "./ImportQuestionsModal";
+import BulkEditBotsModal from "./BulkEditBotsModal";
 
 interface FineTuningQuestionListProps {
   questions: FineTuningQuestion[];
   bots: Bot[];
-  onAddQuestion: (question: Omit<FineTuningQuestion, 'id' | 'createdAt' | 'successRate'>) => void;
+  onAddQuestion: (
+    question: Omit<FineTuningQuestion, "id" | "createdAt" | "successRate">
+  ) => void;
   onEditQuestion: (id: string, question: Partial<FineTuningQuestion>) => void;
   onDeleteQuestions?: (ids: string[]) => Promise<void>;
 }
@@ -18,25 +32,51 @@ export default function FineTuningQuestionList({
   bots,
   onAddQuestion,
   onEditQuestion,
-  onDeleteQuestions
+  onDeleteQuestions,
 }: FineTuningQuestionListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<FineTuningQuestion | undefined>();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
-  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
+  const [editingQuestion, setEditingQuestion] = useState<
+    FineTuningQuestion | undefined
+  >();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
+  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(
+    new Set()
+  );
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const categories = Array.from(new Set(questions.map(q => q.category)));
+  const categories = Array.from(
+    new Set(
+      questions
+        .map((q) => q.category) // Extract category
+        .filter((category) => typeof category === "string") // Remove null/undefined
+        .flatMap((c) => c.split(",").map((c) => c.trim())) // Split & trim
+    )
+  );
 
-  const filteredQuestions = questions.filter(question => {
-    const matchesSearch = question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         question.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || question.category === categoryFilter;
-    const matchesDifficulty = difficultyFilter === 'all' || question.difficulty === difficultyFilter;
+  console.log("categoryFilter", categoryFilter);
+
+  const filteredQuestions = questions.filter((question) => {
+    const matchesSearch =
+      question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (question.category?.toLowerCase()?.includes(searchTerm.toLowerCase()) ??
+        false);
+
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (question.category
+        ? question.category
+            .split(",")
+            .map((c) => c.trim())
+            .includes(categoryFilter)
+        : false);
+
+    const matchesDifficulty =
+      difficultyFilter === "all" || question.difficulty === difficultyFilter;
+
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
@@ -45,7 +85,9 @@ export default function FineTuningQuestionList({
     setIsModalOpen(true);
   };
 
-  const handleModalSubmit = async (questionData: Omit<FineTuningQuestion, 'id' | 'createdAt' | 'successRate'>) => {
+  const handleModalSubmit = async (
+    questionData: Omit<FineTuningQuestion, "id" | "createdAt" | "successRate">
+  ) => {
     try {
       if (editingQuestion) {
         onEditQuestion(editingQuestion.id, questionData);
@@ -55,18 +97,20 @@ export default function FineTuningQuestionList({
       setIsModalOpen(false);
       setEditingQuestion(undefined);
     } catch (error) {
-      console.error('Error saving question:', error);
+      console.error("Error saving question:", error);
     }
   };
 
-  const handleImportQuestions = async (questions: Omit<FineTuningQuestion, 'id' | 'createdAt' | 'successRate'>[]) => {
+  const handleImportQuestions = async (
+    questions: Omit<FineTuningQuestion, "id" | "createdAt" | "successRate">[]
+  ) => {
     try {
       // Add each question one by one
       for (const question of questions) {
         await onAddQuestion(question);
       }
     } catch (error) {
-      console.error('Error importing questions:', error);
+      console.error("Error importing questions:", error);
     }
   };
 
@@ -74,7 +118,7 @@ export default function FineTuningQuestionList({
     if (selectedQuestions.size === filteredQuestions.length) {
       setSelectedQuestions(new Set());
     } else {
-      setSelectedQuestions(new Set(filteredQuestions.map(q => q.id)));
+      setSelectedQuestions(new Set(filteredQuestions.map((q) => q.id)));
     }
   };
 
@@ -90,13 +134,13 @@ export default function FineTuningQuestionList({
 
   const handleBulkDelete = async () => {
     if (!onDeleteQuestions || selectedQuestions.size === 0) return;
-    
+
     try {
       setIsDeleting(true);
       await onDeleteQuestions(Array.from(selectedQuestions));
       setSelectedQuestions(new Set());
     } catch (error) {
-      console.error('Error deleting questions:', error);
+      console.error("Error deleting questions:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -104,7 +148,7 @@ export default function FineTuningQuestionList({
 
   const handleBulkEditSubmit = (botIds: string[]) => {
     const selectedIds = Array.from(selectedQuestions);
-    selectedIds.forEach(id => {
+    selectedIds.forEach((id) => {
       onEditQuestion(id, { botIds });
     });
     setSelectedQuestions(new Set());
@@ -112,27 +156,29 @@ export default function FineTuningQuestionList({
 
   // Get common bot IDs among selected questions
   const getCommonBotIds = () => {
-    const selectedQuestionsData = questions.filter(q => selectedQuestions.has(q.id));
+    const selectedQuestionsData = questions.filter((q) =>
+      selectedQuestions.has(q.id)
+    );
     if (selectedQuestionsData.length === 0) return [];
-    
+
     const commonBots = selectedQuestionsData.reduce((common, question) => {
       if (common === null) return new Set(question.botIds);
-      return new Set([...common].filter(id => question.botIds.includes(id)));
+      return new Set([...common].filter((id) => question.botIds.includes(id)));
     }, null as Set<string> | null);
-    
+
     return commonBots ? Array.from(commonBots) : [];
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy':
-        return 'bg-green-100 text-green-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'hard':
-        return 'bg-red-100 text-red-800';
+      case "easy":
+        return "bg-green-100 text-green-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "hard":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -158,8 +204,10 @@ export default function FineTuningQuestionList({
             className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="all">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </option>
             ))}
           </select>
           <select
@@ -196,7 +244,8 @@ export default function FineTuningQuestionList({
         {selectedQuestions.size > 0 && (
           <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex items-center justify-between">
             <span className="text-sm text-gray-700">
-              {selectedQuestions.size} {selectedQuestions.size === 1 ? 'question' : 'questions'} selected
+              {selectedQuestions.size}{" "}
+              {selectedQuestions.size === 1 ? "question" : "questions"} selected
             </span>
             <div className="flex gap-3">
               <button
@@ -255,9 +304,11 @@ export default function FineTuningQuestionList({
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredQuestions.map((question) => (
-                <tr 
-                  key={question.id} 
-                  className={`hover:bg-gray-50 ${selectedQuestions.has(question.id) ? 'bg-indigo-50' : ''}`}
+                <tr
+                  key={question.id}
+                  className={`hover:bg-gray-50 ${
+                    selectedQuestions.has(question.id) ? "bg-indigo-50" : ""
+                  }`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
@@ -272,21 +323,31 @@ export default function FineTuningQuestionList({
                     </button>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{question.question}</div>
-                    <div className="mt-1 text-sm text-gray-500">{question.expectedAnswer.substring(0, 100)}...</div>
+                    <div className="text-sm text-gray-900">
+                      {question.question}
+                    </div>
+                    <div className="mt-1 text-sm text-gray-500">
+                      {question.expectedAnswer.substring(0, 100)}...
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{question.category}</div>
+                    <div className="text-sm text-gray-900">
+                      {question.category}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDifficultyColor(question.difficulty)}`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDifficultyColor(
+                        question.difficulty
+                      )}`}
+                    >
                       {question.difficulty}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">
-                      {question.botIds.map(botId => {
-                        const bot = bots.find(b => b.id === botId);
+                      {question.botIds.map((botId) => {
+                        const bot = bots.find((b) => b.id === botId);
                         return bot ? (
                           <span
                             key={botId}
@@ -300,7 +361,9 @@ export default function FineTuningQuestionList({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {question.successRate ? `${question.successRate}%` : 'N/A'}
+                      {question.successRate
+                        ? `${question.successRate}%`
+                        : "N/A"}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -319,7 +382,9 @@ export default function FineTuningQuestionList({
         {filteredQuestions.length === 0 && (
           <div className="text-center py-12">
             <Brain className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No questions found</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              No questions found
+            </h3>
             <p className="mt-1 text-sm text-gray-500">
               Get started by adding some fine-tuning questions.
             </p>
