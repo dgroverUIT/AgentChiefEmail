@@ -94,24 +94,24 @@ export default function Dashboard() {
     conversations,
     templates,
     knowledgeBase,
-    settings,
     fineTuningQuestions,
     addBot,
     updateBot,
     addTemplate,
     updateTemplate,
     addKnowledgeBase,
-    updateSettings,
     addFineTuningQuestion,
     updateFineTuningQuestion,
     deleteFineTuningQuestions,
   } = useStore();
 
   const {
-    settings: settingsState,
-    updateSettings: updateSettingsState,
+    settings,
+    updateSettings,
     saveSettings,
-    errors: settingsErrors,
+    errors,
+    settingsIsLoading,
+    setSettings,
   } = useSettings();
 
   const handleSubmit = async (botData: {
@@ -352,8 +352,6 @@ export default function Dashboard() {
   const prevActiveBots = prevMonthBots.filter(
     (b) => b.status === "active"
   ).length;
-
-  console.log("prevTotalConversations", activeBots - prevActiveBots);
 
   // Helper function for percentage change
   const getPercentageChange = (current: number, previous: number) => {
@@ -927,9 +925,11 @@ export default function Dashboard() {
                 <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
               </div>
               <SettingsForm
-                settings={settingsState}
-                onUpdate={updateSettingsState}
+                settings={settings}
+                onUpdate={updateSettings}
                 onSave={saveSettings}
+                settingsIsLoading={settingsIsLoading}
+                setSettings={setSettings}
               />
             </div>
           )}

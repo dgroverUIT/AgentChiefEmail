@@ -1,23 +1,45 @@
-import React from 'react';
-import { Settings } from '../types';
-import { Key, Mail, Bell, Shield, Webhook } from 'lucide-react';
+import React from "react";
+import { Settings } from "../types";
+import { Key, Mail, Bell, Shield, Webhook } from "lucide-react";
 
 interface SettingsFormProps {
   settings: Settings;
   onUpdate: (settings: Settings) => void;
   onSave: () => void;
+  settingsIsLoading: boolean;
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 }
 
-export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFormProps) {
+export default function SettingsForm({
+  settings,
+  onUpdate,
+  onSave,
+  settingsIsLoading,
+  setSettings,
+}: SettingsFormProps) {
   const handleChange = (section: keyof Settings, field: string, value: any) => {
-    onUpdate({
-      ...settings,
+    console.log("Updating:", section, field, value);
+
+    setSettings((prevSettings) => ({
+      ...prevSettings,
       [section]: {
-        ...settings[section],
+        ...prevSettings[section],
         [field]: value,
       },
-    });
+    }));
+
+    // onUpdate({
+    //   ...settings,
+    //   [section]: {
+    //     ...settings[section],
+    //     [field]: value,
+    //   },
+    // });
   };
+
+  if (settingsIsLoading) {
+    return <div>Loading settings...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -29,19 +51,27 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Company Name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Company Name
+            </label>
             <input
               type="text"
-              value={settings.general.companyName}
-              onChange={(e) => handleChange('general', 'companyName', e.target.value)}
+              defaultValue={settings?.general?.companyName}
+              onChange={(e) =>
+                handleChange("general", "companyName", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Default Language</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Default Language
+            </label>
             <select
-              value={settings.general.defaultLanguage}
-              onChange={(e) => handleChange('general', 'defaultLanguage', e.target.value)}
+              defaultValue={settings?.general?.defaultLanguage}
+              onChange={(e) =>
+                handleChange("general", "defaultLanguage", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             >
               <option value="en">English</option>
@@ -51,10 +81,14 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Timezone</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Timezone
+            </label>
             <select
-              value={settings.general.timezone}
-              onChange={(e) => handleChange('general', 'timezone', e.target.value)}
+              defaultValue={settings?.general?.timezone}
+              onChange={(e) =>
+                handleChange("general", "timezone", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             >
               <option value="UTC">UTC</option>
@@ -65,10 +99,14 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Date Format</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Date Format
+            </label>
             <select
-              value={settings.general.dateFormat}
-              onChange={(e) => handleChange('general', 'dateFormat', e.target.value)}
+              defaultValue={settings?.general?.dateFormat}
+              onChange={(e) =>
+                handleChange("general", "dateFormat", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             >
               <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -87,47 +125,71 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Default From Name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Default From Name
+            </label>
             <input
               type="text"
-              value={settings.email.defaultFromName}
-              onChange={(e) => handleChange('email', 'defaultFromName', e.target.value)}
+              defaultValue={settings?.email?.defaultFromName}
+              onChange={(e) =>
+                handleChange("email", "defaultFromName", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Default From Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Default From Email
+            </label>
             <input
               type="email"
-              value={settings.email.defaultFromEmail}
-              onChange={(e) => handleChange('email', 'defaultFromEmail', e.target.value)}
+              defaultValue={settings?.email?.defaultFromEmail}
+              onChange={(e) =>
+                handleChange("email", "defaultFromEmail", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Reply-To Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Reply-To Email
+            </label>
             <input
               type="email"
-              value={settings.email.replyToEmail}
-              onChange={(e) => handleChange('email', 'replyToEmail', e.target.value)}
+              defaultValue={settings?.email?.replyToEmail}
+              onChange={(e) =>
+                handleChange("email", "replyToEmail", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email Footer</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email Footer
+            </label>
             <textarea
-              value={settings.email.emailFooter}
-              onChange={(e) => handleChange('email', 'emailFooter', e.target.value)}
+              defaultValue={settings?.email?.emailFooter}
+              onChange={(e) =>
+                handleChange("email", "emailFooter", e.target.value)
+              }
               rows={3}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Max Attachment Size (MB)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Max Attachment Size (MB)
+            </label>
             <input
               type="number"
-              value={settings.email.maxAttachmentSize}
-              onChange={(e) => handleChange('email', 'maxAttachmentSize', parseInt(e.target.value))}
+              defaultValue={settings?.email?.maxAttachmentSize}
+              onChange={(e) =>
+                handleChange(
+                  "email",
+                  "maxAttachmentSize",
+                  parseInt(e.target.value)
+                )
+              }
               min="1"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
@@ -146,29 +208,45 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
             <label className="flex items-center">
               <input
                 type="checkbox"
-                checked={settings.notifications.emailNotifications}
-                onChange={(e) => handleChange('notifications', 'emailNotifications', e.target.checked)}
+                checked={settings?.notifications?.emailNotifications}
+                onChange={(e) =>
+                  handleChange(
+                    "notifications",
+                    "emailNotifications",
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600">Email Notifications</span>
+              <span className="ml-2 text-sm text-gray-600">
+                Email Notifications
+              </span>
             </label>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Slack Webhook URL</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Slack Webhook URL
+            </label>
             <input
               type="url"
-              value={settings.notifications.slackWebhook || ''}
-              onChange={(e) => handleChange('notifications', 'slackWebhook', e.target.value)}
+              defaultValue={settings?.notifications?.slackWebhook || ""}
+              onChange={(e) =>
+                handleChange("notifications", "slackWebhook", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               placeholder="https://hooks.slack.com/..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Slack Channel</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Slack Channel
+            </label>
             <input
               type="text"
-              value={settings.notifications.slackChannel || ''}
-              onChange={(e) => handleChange('notifications', 'slackChannel', e.target.value)}
+              defaultValue={settings?.notifications?.slackChannel || ""}
+              onChange={(e) =>
+                handleChange("notifications", "slackChannel", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               placeholder="#channel-name"
             />
@@ -177,29 +255,53 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
             <label className="flex items-center">
               <input
                 type="checkbox"
-                checked={settings.notifications.notifyOnNewConversation}
-                onChange={(e) => handleChange('notifications', 'notifyOnNewConversation', e.target.checked)}
+                checked={settings?.notifications?.notifyOnNewConversation}
+                onChange={(e) =>
+                  handleChange(
+                    "notifications",
+                    "notifyOnNewConversation",
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600">Notify on new conversation</span>
+              <span className="ml-2 text-sm text-gray-600">
+                Notify on new conversation
+              </span>
             </label>
             <label className="flex items-center">
               <input
                 type="checkbox"
-                checked={settings.notifications.notifyOnHandoff}
-                onChange={(e) => handleChange('notifications', 'notifyOnHandoff', e.target.checked)}
+                checked={settings?.notifications?.notifyOnHandoff}
+                onChange={(e) =>
+                  handleChange(
+                    "notifications",
+                    "notifyOnHandoff",
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600">Notify on human handoff</span>
+              <span className="ml-2 text-sm text-gray-600">
+                Notify on human handoff
+              </span>
             </label>
             <label className="flex items-center">
               <input
                 type="checkbox"
-                checked={settings.notifications.notifyOnError}
-                onChange={(e) => handleChange('notifications', 'notifyOnError', e.target.checked)}
+                checked={settings?.notifications?.notifyOnError}
+                onChange={(e) =>
+                  handleChange(
+                    "notifications",
+                    "notifyOnError",
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600">Notify on errors</span>
+              <span className="ml-2 text-sm text-gray-600">
+                Notify on errors
+              </span>
             </label>
           </div>
         </div>
@@ -217,38 +319,66 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
               <input
                 type="checkbox"
                 checked={settings.security.twoFactorEnabled}
-                onChange={(e) => handleChange('security', 'twoFactorEnabled', e.target.checked)}
+                onChange={(e) =>
+                  handleChange("security", "twoFactorEnabled", e.target.checked)
+                }
                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600">Enable Two-Factor Authentication</span>
+              <span className="ml-2 text-sm text-gray-600">
+                Enable Two-Factor Authentication
+              </span>
             </label>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Allowed Domains</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Allowed Domains
+            </label>
             <input
               type="text"
-              value={settings.security.allowedDomains.join(', ')}
-              onChange={(e) => handleChange('security', 'allowedDomains', e.target.value.split(',').map(d => d.trim()))}
+              defaultValue={settings.security.allowedDomains.join(", ")}
+              onChange={(e) =>
+                handleChange(
+                  "security",
+                  "allowedDomains",
+                  e.target.value.split(",").map((d) => d.trim())
+                )
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               placeholder="example.com, another-domain.com"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">IP Whitelist</label>
+            <label className="block text-sm font-medium text-gray-700">
+              IP Whitelist
+            </label>
             <input
               type="text"
-              value={settings.security.ipWhitelist.join(', ')}
-              onChange={(e) => handleChange('security', 'ipWhitelist', e.target.value.split(',').map(ip => ip.trim()))}
+              defaultValue={settings.security.ipWhitelist.join(", ")}
+              onChange={(e) =>
+                handleChange(
+                  "security",
+                  "ipWhitelist",
+                  e.target.value.split(",").map((ip) => ip.trim())
+                )
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               placeholder="192.168.1.1, 10.0.0.0/24"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Session Timeout (minutes)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Session Timeout (minutes)
+            </label>
             <input
               type="number"
-              value={settings.security.sessionTimeout}
-              onChange={(e) => handleChange('security', 'sessionTimeout', parseInt(e.target.value))}
+              defaultValue={settings.security.sessionTimeout}
+              onChange={(e) =>
+                handleChange(
+                  "security",
+                  "sessionTimeout",
+                  parseInt(e.target.value)
+                )
+              }
               min="5"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
@@ -264,11 +394,13 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">API Key</label>
+            <label className="block text-sm font-medium text-gray-700">
+              API Key
+            </label>
             <div className="mt-1 flex rounded-md shadow-sm">
               <input
                 type="password"
-                value={settings.api.apiKey}
+                defaultValue={settings?.api?.apiKey}
                 readOnly
                 className="flex-1 rounded-l-md border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
@@ -276,7 +408,7 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
                 type="button"
                 onClick={() => {
                   const newApiKey = crypto.randomUUID();
-                  handleChange('api', 'apiKey', newApiKey);
+                  handleChange("api", "apiKey", newApiKey);
                 }}
                 className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 text-sm hover:bg-gray-100"
               >
@@ -285,21 +417,29 @@ export default function SettingsForm({ settings, onUpdate, onSave }: SettingsFor
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Webhook URL</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Webhook URL
+            </label>
             <input
               type="url"
-              value={settings.api.webhookUrl || ''}
-              onChange={(e) => handleChange('api', 'webhookUrl', e.target.value)}
+              defaultValue={settings.api.webhookUrl || ""}
+              onChange={(e) =>
+                handleChange("api", "webhookUrl", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               placeholder="https://your-domain.com/webhook"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Webhook Secret</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Webhook Secret
+            </label>
             <input
               type="password"
-              value={settings.api.webhookSecret || ''}
-              onChange={(e) => handleChange('api', 'webhookSecret', e.target.value)}
+              defaultValue={settings.api.webhookSecret || ""}
+              onChange={(e) =>
+                handleChange("api", "webhookSecret", e.target.value)
+              }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>

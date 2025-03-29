@@ -22,8 +22,6 @@ export default function UploadDocumentModal({
   const [newTag, setNewTag] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  console.log("formData before", formData);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;

@@ -148,6 +148,8 @@ export default function FineTuningQuestionList({
 
   const handleBulkEditSubmit = (botIds: string[]) => {
     const selectedIds = Array.from(selectedQuestions);
+
+    console.log("Bulk edit ids ", selectedIds);
     selectedIds.forEach((id) => {
       onEditQuestion(id, { botIds });
     });

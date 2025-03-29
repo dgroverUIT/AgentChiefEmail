@@ -42,8 +42,6 @@ export default function BotModal({
   const [formData, setFormData] = useState(initialFormData);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  console.log("error checking", error);
-
   // Reset form when modal opens/closes or editBot changes
   useEffect(() => {
     if (isOpen) {
@@ -67,7 +65,7 @@ export default function BotModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("formData before", formData);
+
     await onSubmit(formData);
     if (!error && error !== null) {
       setShowSuccess(true);

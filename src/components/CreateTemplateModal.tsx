@@ -33,8 +33,6 @@ export default function CreateTemplateModal({
   const [newVariable, setNewVariable] = useState("");
   const [newTag, setNewTag] = useState("");
 
-  console.log("newVariable ", newVariable);
-
   // Reset form when modal opens/closes or editTemplate changes
   useEffect(() => {
     if (isOpen) {
