@@ -109,8 +109,6 @@ export async function updateFineTuningQuestion(
       throw new Error("Please sign in to update a fine-tuning question");
     }
 
-    console.log("edit find tune question", questionData, "ids", id);
-
     // Update the question using snake_case column names
     const { data: question, error } = await supabase
       .from("fine_tuning_questions")
@@ -125,8 +123,9 @@ export async function updateFineTuningQuestion(
         success_rate: questionData.successRate,
       })
       .eq("id", id)
-      .select()
-      .single();
+      .select();
+
+    console.log("question list", question);
 
     if (error) {
       console.error("Database error:", error);
@@ -151,7 +150,7 @@ export async function updateFineTuningQuestion(
 
       // Then create new associations
       if (questionData.botIds.length > 0) {
-        const { error: associationError } = await supabase
+        const { data, error: associationError } = await supabase
           .from("bot_fine_tuning_questions")
           .insert(
             questionData.botIds.map((botId) => ({
@@ -159,36 +158,76 @@ export async function updateFineTuningQuestion(
               question_id: id,
               organization_id: null,
             }))
-          );
+          )
+          .select();
 
         if (associationError) {
           console.error("Error creating bot associations:", associationError);
+        } else {
+          // Get the updated bot associations
+          const { data: associations, error: associationsError } =
+            await supabase
+              .from("bot_fine_tuning_questions")
+              .select("bot_id")
+              .eq("question_id", id);
+
+          if (associationsError) {
+            console.error("Error getting bot associations:", associationsError);
+          } else {
+            console.log("associations", associations);
+
+            const { data: questionData, error: questionDataError } =
+              await supabase
+                .from("fine_tuning_questions")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (questionDataError) {
+              console.error("Error getting question data:", questionDataError);
+            } else {
+              console.log("questionData", questionData);
+
+              // Transform the response to match our frontend types
+              const transformedQuestion: FineTuningQuestion = {
+                id: questionData.id,
+                question: questionData.question,
+                expectedAnswer: questionData.expected_answer,
+                category: questionData.category,
+                difficulty: questionData.difficulty,
+                tags: questionData.tags || [],
+                createdAt: questionData.created_at,
+                lastUsed: questionData.last_used,
+                successRate: questionData.success_rate,
+                isActive: questionData.is_active,
+                botIds: associations?.map((a) => a.bot_id) || [],
+              };
+
+              console.log("transformedQuestion", transformedQuestion);
+
+              return { success: true, question: transformedQuestion };
+            }
+          }
+
+          // Transform the response to match our frontend types
+          // const transformedQuestion: FineTuningQuestion = {
+          //   id: question.id,
+          //   question: question.question,
+          //   expectedAnswer: question.expected_answer,
+          //   category: question.category,
+          //   difficulty: question.difficulty,
+          //   tags: question.tags || [],
+          //   createdAt: question.created_at,
+          //   lastUsed: question.last_used,
+          //   successRate: question.success_rate,
+          //   isActive: question.is_active,
+          //   botIds: associations?.map((a) => a.bot_id) || [],
+          // };
+
+          // return { success: true, question: transformedQuestion };
         }
       }
     }
-
-    // Get the updated bot associations
-    const { data: associations } = await supabase
-      .from("bot_fine_tuning_questions")
-      .select("bot_id")
-      .eq("question_id", id);
-
-    // Transform the response to match our frontend types
-    const transformedQuestion: FineTuningQuestion = {
-      id: question.id,
-      question: question.question,
-      expectedAnswer: question.expected_answer,
-      category: question.category,
-      difficulty: question.difficulty,
-      tags: question.tags || [],
-      createdAt: question.created_at,
-      lastUsed: question.last_used,
-      successRate: question.success_rate,
-      isActive: question.is_active,
-      botIds: associations?.map((a) => a.bot_id) || [],
-    };
-
-    return { success: true, question: transformedQuestion };
   } catch (error) {
     console.error("Error updating fine-tuning question:", error);
     return {
@@ -207,8 +246,6 @@ export async function deleteFineTuningQuestion(id: string) {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession();
-
-    console.log("detelte questions id", id);
 
     if (sessionError || !session?.user?.id) {
       throw new Error("Please sign in to delete a fine-tuning question");

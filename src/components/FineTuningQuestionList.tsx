@@ -61,8 +61,8 @@ export default function FineTuningQuestionList({
 
   const filteredQuestions = questions.filter((question) => {
     const matchesSearch =
-      question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (question.category?.toLowerCase()?.includes(searchTerm.toLowerCase()) ??
+      question?.question?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (question?.category?.toLowerCase()?.includes(searchTerm.toLowerCase()) ??
         false);
 
     const matchesCategory =

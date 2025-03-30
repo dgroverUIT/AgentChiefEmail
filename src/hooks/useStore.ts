@@ -238,6 +238,10 @@ export const useStore = create<Store>((set, get) => ({
 
   updateFineTuningQuestion: async (id, question) => {
     const result = await updateFineTuningQuestionService(id, question);
+
+    console.log("result", result);
+    console.log("id", id);
+    console.log("question", question);
     if (result.success && result.question) {
       set((state) => ({
         fineTuningQuestions: state.fineTuningQuestions.map((q) =>
