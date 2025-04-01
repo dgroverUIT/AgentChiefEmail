@@ -53,8 +53,8 @@ interface Store {
       | "status"
       | "createdAt"
       | "lastActive"
-      | "totalEmails"
-      | "responseRate"
+      | "total_emails"
+      | "response_rate"
     >
   ) => Promise<void>;
   updateBot: (id: string, bot: Partial<Bot>) => Promise<void>;

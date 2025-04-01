@@ -559,13 +559,13 @@ export default function Dashboard() {
                         <div>
                           <p className="text-gray-500">Total Emails</p>
                           <p className="text-lg font-semibold text-gray-900">
-                            {bot.totalEmails?.toLocaleString() || "0"}
+                            {bot.total_emails?.toLocaleString() || "0"}
                           </p>
                         </div>
                         <div>
                           <p className="text-gray-500">Response Rate</p>
                           <p className="text-lg font-semibold text-gray-900">
-                            {bot.responseRate?.toString() || "0"}%
+                            {bot.response_rate?.toString() || "0"}%
                           </p>
                         </div>
                       </div>
@@ -897,14 +897,14 @@ export default function Dashboard() {
                   title="Average Response Rate"
                   value={`${Math.round(
                     bots.reduce(
-                      (acc, bot) => acc + (bot.responseRate || 0),
+                      (acc, bot) => acc + (bot.response_rate || 0),
                       0
                     ) / (bots.length || 1)
                   )}%`}
                   icon={LineChart}
                   // change={getPercentageChange(
-                  //   avgResponseRate,
-                  //   prevAvgResponseRate
+                  //   avgresponse_rate,
+                  //   prevAvgresponse_rate
                   // )}
                 />
                 <AnalyticsCard

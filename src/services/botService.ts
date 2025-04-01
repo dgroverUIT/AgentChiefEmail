@@ -8,8 +8,8 @@ export async function createBot(
     | "status"
     | "createdAt"
     | "lastActive"
-    | "totalEmails"
-    | "responseRate"
+    | "total_emails"
+    | "response_rate"
   >
 ) {
   try {
@@ -83,8 +83,8 @@ export async function createBot(
         description: bot.description,
         createdAt: bot.created_at,
         lastActive: bot.last_active,
-        totalEmails: bot.total_emails,
-        responseRate: bot.response_rate,
+        total_emails: bot.total_emails,
+        response_rate: bot.response_rate,
         forwardTemplateId: bot.forward_template_id || null,
         forwardEmailAddress: bot.forward_email_address || null,
         includeCustomerInForward: bot.include_customer_in_forward || false,
@@ -180,8 +180,8 @@ export async function updateBot(id: string, botData: Partial<Bot>) {
         description: bot.description,
         createdAt: bot.created_at,
         lastActive: bot.last_active,
-        totalEmails: bot.total_emails,
-        responseRate: bot.response_rate,
+        total_emails: bot.total_emails,
+        response_rate: bot.response_rate,
         forwardTemplateId: bot.forward_template_id || null,
         forwardEmailAddress: bot.forward_email_address || null,
         includeCustomerInForward: bot.include_customer_in_forward || false,

@@ -14,8 +14,8 @@ export interface Bot {
   emailAddress: string; // Email address the bot uses
   createdAt: string; // Creation timestamp
   lastActive: string; // Last activity timestamp
-  totalEmails: number; // Total number of emails processed
-  responseRate: number; // Percentage of successful responses
+  total_emails: number; // Total number of emails processed
+  response_rate: number; // Percentage of successful responses
   description?: string; // Optional bot description
   forwardTemplateId?: string; // Template ID for forwarding emails
   forwardEmailAddress?: string; // Address to forward complex queries
